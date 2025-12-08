@@ -1,0 +1,17 @@
+name: epfl
+format: aig
+# path: epfl
+
+subsets:
+  - name: arithmetic
+    # path: arithmetic
+    # format: aig
+  - name: random_control
+    # path: random_control
+    # format: aig
+  # - name: best_size
+  #   path: best_results/size
+  #   format: blif
+  # - name: best_depth
+  #   path: best_results/depth
+  #   format: blif
