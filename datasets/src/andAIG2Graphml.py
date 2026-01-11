@@ -45,12 +45,16 @@ def processANDAssignments(inputs,output,idxCounter,poList,nodeNameIDMapping,sing
         if not (inp in nodeNameIDMapping.keys()):
             srcIdx = nodeNameIDMapping[singleGateInputIOMapping[inp]]
             eType = edgeType["NOT"]
-            numInvertedPredecessors+=1
+            numInvertedPredecessors += 1
         else:
             srcIdx = nodeNameIDMapping[inp]
             eType = edgeType["BUFF"]
-        AIG_DAG.add_edge(idxCounter,srcIdx,edge_type=eType)
-    AIG_DAG.nodes[idxCounter]["num_inverted_predecessors"] = numInvertedPredecessors
+        AIG_DAG.add_edge(idxCounter,
+                         srcIdx,
+                         edge_type=eType)
+    AIG_DAG.nodes[idxCounter][
+        "num_inverted_predecessors"
+    ] = numInvertedPredecessors
 
     # If output is primary output, add additional node to keep it consistent with POs having inverters
     if (output in poList):
@@ -64,7 +68,7 @@ def processANDAssignments(inputs,output,idxCounter,poList,nodeNameIDMapping,sing
         nodeNameIDMapping[output+"_buff"] = idxCounter+1
         srcIdx = idxCounter
         eType = edgeType["BUFF"]
-        AIG_DAG.add_edge(idxCounter+1,srcIdx, edge_type=eType)
+        AIG_DAG.add_edge(idxCounter+1, srcIdx, edge_type=eType)
 
 
 def parseAIGBenchAndCreateNetworkXGraph(input_bench):
@@ -76,6 +80,8 @@ def parseAIGBenchAndCreateNetworkXGraph(input_bench):
     AIG_DAG = nx.MultiDiGraph()
     idxCounter = 0
     for line in benchFileLines:
+        if 'gate_6' in line:
+            print(line)
         if (
             len(line.strip()) == 0 or
             line.__contains__("ABC") or
@@ -83,7 +89,7 @@ def parseAIGBenchAndCreateNetworkXGraph(input_bench):
         ):
             continue
         elif line.__contains__("vdd"):
-            line = line.replace(" ","")
+            line = line.replace(" ", "")
             pi = re.search("(.*?)=", str(line)).group(1)
             nodeAttributedDict = {
                 "node_id": pi,
@@ -92,10 +98,10 @@ def parseAIGBenchAndCreateNetworkXGraph(input_bench):
             }
             AIG_DAG.add_nodes_from([(idxCounter, nodeAttributedDict)])
             nodeNameIDMapping[pi] = idxCounter
-            idxCounter+=1
+            idxCounter += 1
         elif line.__contains__("INPUT"):
-            line = line.replace(" ","")
-            pi = re.search("INPUT\((.*?)\)",str(line)).group(1)
+            line = line.replace(" ", "")
+            pi = re.search("INPUT\((.*?)\)", str(line)).group(1)
             nodeAttributedDict = {
                 "node_id": pi,
                 "node_type": nodeType["PI"],
@@ -103,23 +109,28 @@ def parseAIGBenchAndCreateNetworkXGraph(input_bench):
             }
             AIG_DAG.add_nodes_from([(idxCounter, nodeAttributedDict)])
             nodeNameIDMapping[pi] = idxCounter
-            idxCounter+=1
+            idxCounter += 1
         elif line.__contains__("OUTPUT"):
             line = line.replace(" ", "")
             po = re.search("OUTPUT\((.*?)\)", str(line)).group(1)
             poList.append(po)
-            # print(f'{po=}')
-            # node_name = nodeNameIDMapping.get(po)
-            # print(f'{node_name=}')
         elif line.__contains__("AND"):
             line = line.replace(" ", "")
             output = re.search("(.*?)=", str(line)).group(1)
             input1 = re.search("AND\((.*?),",str(line)).group(1)
             input2 = re.search(",(.*?)\)", str(line)).group(1)
-            processANDAssignments([input1,input2], output, idxCounter, poList, nodeNameIDMapping, singleInputgateIOMapping, AIG_DAG)
+            processANDAssignments(
+                [input1, input2],
+                output,
+                idxCounter,
+                poList,
+                nodeNameIDMapping,
+                singleInputgateIOMapping,
+                AIG_DAG
+            )
             if output in poList:
                 idxCounter += 1
-            idxCounter+=1
+            idxCounter += 1
         elif line.__contains__("NOT"):
             line = line.replace(" ", "")
             output = re.search("(.*?)=", str(line)).group(1)
@@ -148,9 +159,11 @@ def parseAIGBenchAndCreateNetworkXGraph(input_bench):
                     srcIdx = nodeNameIDMapping[inputPin]
                     eType = edgeType["BUFF"]
                 else:
-                    srcIdx = nodeNameIDMapping[singleInputgateIOMapping[inputPin]]
+                    srcIdx = nodeNameIDMapping[
+                        singleInputgateIOMapping[inputPin]
+                    ]
                     eType = edgeType["NOT"]
-                    numInvertedPredecessors+=1
+                    numInvertedPredecessors += 1
                 nodeAttributedDict = {
                     "node_id": output+"_buff",
                     "node_type": nodeType["PO"],
@@ -188,6 +201,7 @@ def parseCmdLineArgs():
     parser.add_argument('--gml', required=True, help="GML file dump location")
     return parser.parse_args()
 
+
 def main():
     cmdArgs = parseCmdLineArgs()
     benchFile = cmdArgs.bench
@@ -195,6 +209,7 @@ def main():
     checkInputPaths(benchFile, gmlDumpLoc)
     nxCktDAG = parseAIGBenchAndCreateNetworkXGraph(benchFile)
     dumpGMLGraph(nxCktDAG, benchFile, gmlDumpLoc)
+
 
 if __name__ == '__main__':
     main()
