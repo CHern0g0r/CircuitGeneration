@@ -1,7 +1,8 @@
-data_path="/Users/fedor.chernogorskii/heap/data/circ/orig/cirbo"
-gml_path="/Users/fedor.chernogorskii/heap/data/circ/graphml"
-csv_data="/Users/fedor.chernogorskii/workspace/circ/CircuitGeneration/datasets/data/circ_df.csv"
-out_csv="/Users/fedor.chernogorskii/workspace/circ/CircuitGeneration/datasets/data/cirbo_df.csv"
+base_path=""
+data_path="${base_path}/heap/data/circ/orig/cirbo"
+gml_path="${base_path}/heap/data/circ/graphml"
+csv_data="${base_path}/workspace/circ/CircuitGeneration/datasets/data/circ_df.csv"
+out_csv="${base_path}/workspace/circ/CircuitGeneration/datasets/data/cirbo_df.csv"
 dataset="cirbo"
 
 echo "cirbo to graphml"
